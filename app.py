@@ -1,9 +1,4 @@
-# app.py — 단 하루 거래 대시보드 (Streamlit + Pandas)
-# - 오직 하루 화면만 표시
-# - 날짜 화살표/선택으로 이동
-# - 좌측: 당일 거래 막대차트 + 표
-# - 우측: 요약 박스(입금/출금/순이익, 누적 현황)
-# - SELF(내부거래) 자동 숨김
+
 import os
 from typing import Tuple
 
@@ -12,11 +7,7 @@ import streamlit as st
 
 # ===================== 데이터 로드 =====================
 def load_proc() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    asd.load_and_process를 호출해 (df, daily) 튜플을 반환하도록 정규화한다.
-    - 시그니처 호환: load_and_process(path) 또는 load_and_process()
-    - 반환형 호환: dict({'df','daily'}) 또는 tuple/list(df, daily, ...)
-    """
+
     try:
         import asd
     except Exception as e:
@@ -175,8 +166,7 @@ sel = st.session_state.selected_date
 sel_str = str(sel)
 
 # ===================== 요약 박스 (우측) =====================
-# 문자열/날짜 인덱스 모두 호환
-# <div class='muted'>현재까지 입금: <b>{fmt_money(row.get('cum_deposit', 0))}</b></div>
+
 row = daily.loc[sel_str] if sel_str in daily.index.astype(str) else daily.loc[pd.to_datetime(sel)]
 
 right_col, left_col = st.columns([1,2], gap="large")  # 우측 요약, 좌측 차트/표
@@ -278,10 +268,10 @@ with st.expander("수호가 돈을 쓰는 습관과 문제점"):
         unsafe_allow_html=True,
     )
 
-# ===================== 고액거래 & 월 평균 Top5 사용처 탭 =====================
+# ===================== 고액거래  월 평균 Top5 사용처 탭 =====================
 high_tabs = st.tabs(["월 평균 Top5 사용처", "고액거래"])
 
-# 공통: 지출(출금) 필터 및 사용처 컬럼 결정
+# 공통: 지출 필터 및 사용처 컬럼 결정
 base_df = df.copy()
 # 날짜 표준화 보장
 if "date" not in base_df.columns and "datetime" in base_df.columns:
@@ -289,13 +279,13 @@ if "date" not in base_df.columns and "datetime" in base_df.columns:
 elif "date" in base_df.columns:
     base_df["date"] = pd.to_datetime(base_df["date"]).dt.date
 
-# 지출(출금)만: type이 있으면 '출금', 없으면 amount<0
+# 지출만: type이 있으면 출금, 없으면 amount<0
 if "type" in base_df.columns:
     spend_df = base_df[(base_df["type"] == "출금") | (("amount" in base_df.columns) & (base_df["amount"] < 0))].copy()
 else:
     spend_df = base_df[base_df["amount"] < 0].copy() if "amount" in base_df.columns else base_df.copy()
 
-# 사용처(상호) 컬럼 추론
+# 사용처 컬럼 추론
 merchant_col = None
 for c in ["merchant", "counterparty", "상대방", "사용처", "desc", "place"]:
     if c in spend_df.columns:
