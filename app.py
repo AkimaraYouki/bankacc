@@ -279,7 +279,7 @@ if "date" not in base_df.columns and "datetime" in base_df.columns:
 elif "date" in base_df.columns:
     base_df["date"] = pd.to_datetime(base_df["date"]).dt.date
 
-# 지출만: type이 있으면 출금, 없으면 amount<0
+# 지출만: type이 있으면 출금
 if "type" in base_df.columns:
     spend_df = base_df[(base_df["type"] == "출금") | (("amount" in base_df.columns) & (base_df["amount"] < 0))].copy()
 else:
